@@ -43,7 +43,10 @@ class ThemeController extends GetxController {
   void onInit() {
     super.onInit();
     _loadSavedTheme();
-    Get.changeThemeMode(themeModeForMaterial);
+    // Defer theme change to avoid setState() during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.changeThemeMode(themeModeForMaterial);
+    });
   }
 
   void _loadSavedTheme() {
