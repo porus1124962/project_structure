@@ -3,42 +3,40 @@ abstract class BaseConfig {
   String get imageUrl;
   String get baseUrl;
   String get socketUrl;
-  // String get alterEgoSocketUrl;
   String get dummyProfile;
 }
 
 class DevConfig implements BaseConfig {
   @override
-  String get baseUrl => "http://123.117.128.19:8098/api/";
+  String get baseUrl => "https://dev-api.example.com/";
   @override
-  String get imageUrl => "http://123.117.128.19:8098/uploads/";
+  String get imageUrl => "https://dev-api.example.com/uploads/";
 
   @override
-  String get apiUrl => "http://123.117.128.19:8098/api/";
+  String get apiUrl => "https://dev-api.example.com/api/";
 
   @override
-  String get socketUrl => "http://123.117.128.19:8098";
-  @override
-  // String get alterEgoSocketUrl => "ws://123.168.5.251:8092/alter-ego";
+  String get socketUrl => "https://dev-api.example.com";
+
   @override
   String get dummyProfile =>
-      "https://www.itdp.org/wp-content/uploads/2021/06/avatar-man-icon-profile-placeholder-260nw-1229859850-e1623694994111.jpg";
+      "https://ui-avatars.com/api/?background=random&name=User";
 }
 
 class ProductionConfig implements BaseConfig {
   @override
-  String get baseUrl => "http://123.117.128.19:8098/";
+  String get baseUrl => "https://api.example.com/";
 
   @override
-  String get imageUrl => "http://123.117.128.19:8098/uploads/";
+  String get imageUrl => "https://api.example.com/uploads/";
   @override
-  String get apiUrl => "http://123.117.128.19:8098/api/";
+  String get apiUrl => "https://api.example.com/api/";
   @override
-  String get socketUrl => "http://123.117.128.19:8098";
+  String get socketUrl => "https://api.example.com";
 
   @override
   String get dummyProfile =>
-      "https://www.itdp.org/wp-content/uploads/2021/06/avatar-man-icon-profile-placeholder-260nw-1229859850-e1623694994111.jpg";
+      "https://ui-avatars.com/api/?background=random&name=User";
 }
 
 class Environment {
@@ -54,7 +52,7 @@ class Environment {
 
   late BaseConfig config;
 
-  initConfig(String environment) {
+  void initConfig(String environment) {
     config = _getConfig(environment);
   }
 

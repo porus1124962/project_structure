@@ -1,104 +1,123 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/string_extensions.dart';
 
 import 'autoSizeText.dart';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Typography helpers
+// ─────────────────────────────────────────────────────────────────────────────
+// By default these helpers use the system font.
+// To use Poppins (or any custom font):
+//   1. Add the font files to assets/fonts/
+//   2. Register them in pubspec.yaml under the `fonts:` section
+//   3. Replace the fontFamily strings below (e.g. 'Poppins')
+// ─────────────────────────────────────────────────────────────────────────────
 
-poppinsRegular(
-    {double? fontSize,
-    color,
-    fontWeight,
-    double? latterSpacing,
-    TextOverflow? textOverflow}) {
+/// Regular weight text style. Set [fontFamily] in pubspec to use a custom font.
+TextStyle poppinsRegular({
+  double? fontSize,
+  Color? color,
+  FontWeight? fontWeight,
+  double? latterSpacing,
+  TextOverflow? textOverflow,
+}) {
   return TextStyle(
     fontSize: fontSize ?? 18,
     color: color ?? Colors.grey,
-    fontWeight: fontWeight ?? FontWeight.w100,
-    fontFamily: 'Poppins-Medium',
+    fontWeight: fontWeight ?? FontWeight.w400,
+    // fontFamily: 'Poppins', // uncomment after registering the font in pubspec.yaml
     letterSpacing: latterSpacing ?? 0,
     overflow: textOverflow,
   );
 }
 
-poppinsBold(
-    {double? fontSize,
-    color,
-    fontWeight,
-    double? latterSpacing,
-    fontStyle,
-    TextOverflow? textOverflow}) {
+/// Bold weight text style.
+TextStyle poppinsBold({
+  double? fontSize,
+  Color? color,
+  FontWeight? fontWeight,
+  double? latterSpacing,
+  FontStyle? fontStyle,
+  TextOverflow? textOverflow,
+}) {
   return TextStyle(
-      fontSize: fontSize ?? 18,
-      fontStyle: fontStyle ?? FontStyle.normal,
-      color: color ?? Colors.grey,
-      fontWeight: fontWeight ?? FontWeight.w600,
-      fontFamily: 'Poppins-Bold',
-      letterSpacing: latterSpacing ?? 0,
-      overflow: textOverflow);
+    fontSize: fontSize ?? 18,
+    fontStyle: fontStyle ?? FontStyle.normal,
+    color: color ?? Colors.grey,
+    fontWeight: fontWeight ?? FontWeight.w700,
+    // fontFamily: 'Poppins', // uncomment after registering the font
+    letterSpacing: latterSpacing ?? 0,
+    overflow: textOverflow,
+  );
 }
 
-poppinsSemiBold(
-    {double? fontSize,
-    color,
-    fontWeight,
-    double? latterSpacing,
-    fontStyle,
-    TextOverflow? textOverflow}) {
+/// Semi-bold weight text style.
+TextStyle poppinsSemiBold({
+  double? fontSize,
+  Color? color,
+  FontWeight? fontWeight,
+  double? latterSpacing,
+  FontStyle? fontStyle,
+  TextOverflow? textOverflow,
+}) {
   return TextStyle(
-      fontSize: fontSize ?? 18,
-      fontStyle: fontStyle ?? FontStyle.normal,
-      color: color ?? Colors.grey,
-      fontWeight: fontWeight ?? FontWeight.w500,
-      fontFamily: 'Poppins-SemiBold',
-      letterSpacing: latterSpacing ?? 0,
-      overflow: textOverflow);
+    fontSize: fontSize ?? 18,
+    fontStyle: fontStyle ?? FontStyle.normal,
+    color: color ?? Colors.grey,
+    fontWeight: fontWeight ?? FontWeight.w600,
+    // fontFamily: 'Poppins',
+    letterSpacing: latterSpacing ?? 0,
+    overflow: textOverflow,
+  );
 }
 
-poppinsLight(
-    {double? fontSize,
-    color,
-    fontWeight,
-    double? latterSpacing,
-    bool shadow = false,
-    TextOverflow? textOverflow}) {
+/// Light weight text style.
+TextStyle poppinsLight({
+  double? fontSize,
+  Color? color,
+  FontWeight? fontWeight,
+  double? latterSpacing,
+  TextOverflow? textOverflow,
+}) {
   return TextStyle(
-      fontSize: fontSize ?? 18,
-      color: color ?? Colors.grey,
-      fontWeight: fontWeight ?? FontWeight.w600,
-      fontFamily: 'Poppins-Light',
-      letterSpacing: latterSpacing ?? 0,
-      overflow: textOverflow);
+    fontSize: fontSize ?? 18,
+    color: color ?? Colors.grey,
+    fontWeight: fontWeight ?? FontWeight.w300,
+    // fontFamily: 'Poppins',
+    letterSpacing: latterSpacing ?? 0,
+    overflow: textOverflow,
+  );
 }
 
-autoSizeTextWidget(
-    {String? text, double? fontSize, double? maxFontSize, otherStyling}) {
+/// Auto-sizing text widget.
+Widget autoSizeTextWidget({
+  String? text,
+  double? fontSize,
+  double? maxFontSize,
+  TextStyle? otherStyling,
+}) {
   return AutoSizeText(
     text!,
-    minFontSize: fontSize ?? 25,
-    maxFontSize: maxFontSize ?? 15,
+    minFontSize: fontSize ?? 12,
+    maxFontSize: maxFontSize ?? 25,
     style: otherStyling ?? poppinsRegular(),
   );
 }
 
-// String testImage =
-//     'https://thumbs.dreamstime.com/b/environment-earth-day-hands-trees-growing-seedlings-bokeh-green-background-female-hand-holding-tree-nature-field-gra-130247647.jpg';
+/// Formats seconds into mm:ss or hh:mm:ss.
 String formatHHMMSS(int seconds) {
   int hours = (seconds / 3600).truncate();
   seconds = (seconds % 3600).truncate();
   int minutes = (seconds / 60).truncate();
 
-  String hoursStr = (hours).toString().padLeft(2, '0');
-  String minutesStr = (minutes).toString().padLeft(2, '0');
-  String secondsStr = (seconds % 60).toString().padLeft(2, '0');
+  final hoursStr = hours.toString().padLeft(2, '0');
+  final minutesStr = minutes.toString().padLeft(2, '0');
+  final secondsStr = (seconds % 60).toString().padLeft(2, '0');
 
-  if (hours == 0) {
-    return "$minutesStr:$secondsStr";
-  }
-
-  return "$hoursStr:$minutesStr:$secondsStr";
+  return hours == 0 ? '$minutesStr:$secondsStr' : '$hoursStr:$minutesStr:$secondsStr';
 }
 
-String getNames(data) {
-  return "${data.firstName} ${data.lastName}".capitalizeFirst!;
+/// Returns the full name from an object with firstName and lastName fields.
+String getNames(dynamic data) {
+  return '${data.firstName} ${data.lastName}'.capitalizeFirst!;
 }

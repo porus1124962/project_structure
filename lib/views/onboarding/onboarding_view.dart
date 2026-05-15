@@ -39,20 +39,18 @@ class OnboardingView extends GetView<OnboardingController> {
                     _Page(
                       icon: Icons.touch_app_rounded,
                       title: 'Welcome',
-                      subtitle:
-                          'Get started with Virtual Buddy in a few simple steps.',
+                      subtitle: 'Hint: Start by using this structure as your base.',
                     ),
+
                     _Page(
                       icon: Icons.people_rounded,
                       title: 'Connect',
-                      subtitle:
-                          'Stay connected and manage everything in one place.',
+                      subtitle: 'Hint: Keep screens, controllers, and bindings in this pattern.',
                     ),
                     _Page(
                       icon: Icons.settings_rounded,
                       title: 'You\'re set',
-                      subtitle:
-                          'Customize your experience from settings anytime.',
+                      subtitle: 'Hint: Extend this structure to build features faster.',
                     ),
                   ],
                 ),

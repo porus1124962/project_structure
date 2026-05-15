@@ -22,7 +22,8 @@ class AutoSizeText extends StatefulWidget {
         this.wrapWords = true,
         this.overflow,
         this.overflowReplacement,
-        this.textScaleFactor,
+        @Deprecated('Use textScaler instead') this.textScaleFactor,
+        this.textScaler,
         this.maxLines,
         this.semanticsLabel,
       })  : textSpan = null,
@@ -46,7 +47,8 @@ class AutoSizeText extends StatefulWidget {
         this.wrapWords = true,
         this.overflow,
         this.overflowReplacement,
-        this.textScaleFactor,
+        @Deprecated('Use textScaler instead') this.textScaleFactor,
+        this.textScaler,
         this.maxLines,
         this.semanticsLabel,
       })  : data = null,
@@ -69,7 +71,9 @@ class AutoSizeText extends StatefulWidget {
   final bool wrapWords;
   final TextOverflow? overflow;
   final Widget? overflowReplacement;
+  @Deprecated('Use textScaler instead')
   final double? textScaleFactor;
+  final TextScaler? textScaler;
   final int? maxLines;
   final String? semanticsLabel;
 
@@ -148,8 +152,8 @@ class _AutoSizeTextState extends State<AutoSizeText> {
       recognizer: widget.textSpan?.recognizer,
     );
 
-    final userScale =
-        widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context);
+    final userScale = widget.textScaler?.scale(1.0)
+        ?? (widget.textScaleFactor != null ? widget.textScaleFactor! : MediaQuery.textScalerOf(context).scale(1.0));
 
     int left;
     int right;
@@ -213,7 +217,7 @@ class _AutoSizeTextState extends State<AutoSizeText> {
         ),
         textAlign: widget.textAlign ?? TextAlign.left,
         textDirection: widget.textDirection ?? TextDirection.ltr,
-        textScaleFactor: scale,
+        textScaler: TextScaler.linear(scale),
         maxLines: words.length,
         locale: widget.locale,
         strutStyle: widget.strutStyle,
@@ -231,7 +235,7 @@ class _AutoSizeTextState extends State<AutoSizeText> {
       text: text,
       textAlign: widget.textAlign ?? TextAlign.left,
       textDirection: widget.textDirection ?? TextDirection.ltr,
-      textScaleFactor: scale,
+      textScaler: TextScaler.linear(scale),
       maxLines: maxLines,
       locale: widget.locale,
       strutStyle: widget.strutStyle,
@@ -256,7 +260,7 @@ class _AutoSizeTextState extends State<AutoSizeText> {
         locale: widget.locale,
         softWrap: widget.softWrap,
         overflow: widget.overflow,
-        textScaleFactor: 1,
+        textScaler: TextScaler.noScaling,
         maxLines: maxLines,
         semanticsLabel: widget.semanticsLabel,
       );
@@ -271,7 +275,7 @@ class _AutoSizeTextState extends State<AutoSizeText> {
         locale: widget.locale,
         softWrap: widget.softWrap,
         overflow: widget.overflow,
-        textScaleFactor: fontSize / style.fontSize!,
+        textScaler: TextScaler.linear(fontSize / style.fontSize!),
         maxLines: maxLines,
         semanticsLabel: widget.semanticsLabel,
       );

@@ -38,22 +38,22 @@ class LoginView extends GetView<LoginController> {
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: AppConstants.spacingM),
-              CustomTextField(
+              // Wrap the entire field in Obx so obscureText re-evaluates
+              // whenever the user taps the visibility toggle.
+              Obx(() => CustomTextField(
                 hint: 'Password',
                 obscureText: controller.obscurePassword.value,
                 textInputAction: TextInputAction.done,
-                suffixIcon: Obx(
-                  () => IconButton(
-                    icon: Icon(
-                      controller.obscurePassword.value
-                          ? Icons.visibility_off_rounded
-                          : Icons.visibility_rounded,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    onPressed: controller.togglePasswordVisibility,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    controller.obscurePassword.value
+                        ? Icons.visibility_off_rounded
+                        : Icons.visibility_rounded,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
+                  onPressed: controller.togglePasswordVisibility,
                 ),
-              ),
+              )),
               const SizedBox(height: AppConstants.spacingL),
               CustomButton(
                 label: 'Login',

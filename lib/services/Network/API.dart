@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
@@ -7,33 +6,21 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
 
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:heroself/Chat/controller/chatController.dart';
-
 import '../../utils/loader.dart';
 import 'Url.dart';
 import 'interceptor.dart';
 
-final String baseUrl = Environment().config!.baseUrl;
-final String apiUrl = Environment().config!.apiUrl;
-final String imageUrl = Environment().config!.imageUrl;
-final String socketUrl = Environment().config!.socketUrl;
+final String baseUrl = Environment().config.baseUrl;
+final String apiUrl = Environment().config.apiUrl;
+final String imageUrl = Environment().config.imageUrl;
+final String socketUrl = Environment().config.socketUrl;
+
 class Api {
   static final Api singleton = Api._internal();
-  factory Api() {
-    return singleton;
-  }
-
+  factory Api() => singleton;
   Api._internal();
 
-  var sp = GetStorage();
-
-  ///---------Toggle Static \ Dynamic--------///
-
-  // String appType = "Static";
-  String appType = "Dynamic";
-
-  ///---------Toggle Static \ Dynamic End--------///
+  final sp = GetStorage();
   Future<dynamic> interceptorGet(String url,
       {fullUrl, queryParameters, firstTime = false}) async {
     Dio dio = Dio(BaseOptions(
@@ -49,12 +36,6 @@ class Api {
           firstTime: firstTime),
     );
     dio.options.headers['Authorization'] = "Bearer ${sp.read('token')}";
-    if (fullUrl != null) {
-      if (fullUrl.contains("http://123.223.229.217/api/")) {
-        fullUrl = fullUrl.replaceFirst("http://123.223.229.217/api/",
-            "http://123.223.229.217/hero-self/api/");
-      }
-    }
     if (url != "") {
       try {
         final response = await dio.get(fullUrl ?? apiUrl + url,
@@ -62,7 +43,7 @@ class Api {
         return response;
       } on SocketException {
         BotToast.showText(text: 'No Internet connection');
-      } on DioError catch (e) {
+      } on DioException catch (e) {
         return returnResponse(e.response!);
       }
     }
@@ -78,8 +59,6 @@ class Api {
     multiPart = false,
     nonFormContent = false,
     isProgressShow = false,
-    bool video = false,
-    int? rand,
   }) async {
     Dio dio = Dio(BaseOptions(
       connectTimeout: Duration(seconds: 10),
@@ -94,12 +73,6 @@ class Api {
           firstTime: firstTime),
     );
     dio.options.headers['Authorization'] = "Bearer ${sp.read('token')}";
-    if (fullUrl != null) {
-      if (fullUrl.contains("http://123.223.229.217/api/")) {
-        fullUrl = fullUrl.replaceFirst("http://123.223.229.217/api/",
-            "http://123.223.229.217/hero-self/api/");
-      }
-    }
     if (url != "") {
       try {
         dynamic response = await dio.post(
@@ -116,45 +89,35 @@ class Api {
                   headers: {
                       Headers.acceptHeader: "application/json",
                     },
-                  contentType: nonFormContent == false
+                   contentType: nonFormContent == false
                       ? null
                       : "application/x-www-form-urlencoded"),
-          // queryParameters: queryPerameter
-          // onSendProgress: video == true
-          //     ? (int sent, int total) {
-          //   onProgress(video, rand, total, sent, fullUrl, fromChat: true);
-          // }
-          //     : null,
         );
         return response;
       } on SocketException {
         BotToast.showText(text: 'No Internet connection');
-      } on DioError catch (e) {
+      } on DioException catch (e) {
         return returnResponse(e.response!);
       }
     }
   }
 
-  Future<dynamic> get(String url, {fullUrl, queryParameters, nextUrl}) async {
+  Future<dynamic> get(String url, {fullUrl, queryParameters}) async {
     Dio dio = Dio(BaseOptions(
       connectTimeout: Duration(seconds: 10),
       receiveTimeout: Duration(seconds: 10),
     ));
 
-    print('Api Get, url ${apiUrl + url}');
-    var headers = {'token': '${sp.read('token')}'};
-    print(sp.read('token'));
-    dio.options.headers.addAll(headers);
+    dio.options.headers['Authorization'] = "Bearer ${sp.read('token')}";
 
     if (url != "") {
       try {
         final response = await dio.get(fullUrl ?? apiUrl + url,
             queryParameters: queryParameters);
-        print("url ComBined : $apiUrl$url");
         return response;
       } on SocketException {
         BotToast.showText(text: 'No Internet connection');
-      } on DioError catch (e) {
+      } on DioException catch (e) {
         return returnResponse(e.response);
       }
     }
@@ -171,7 +134,7 @@ class Api {
     dio.options.headers['Authorization'] = "Bearer ${sp.read('token')}";
 
     try {
-      final response = await dio.post(
+      final response = await dio.delete(
         apiUrl + url,
         data: formData,
         options: Options(
@@ -193,8 +156,8 @@ class Api {
         }
       });
       BotToast.showText(text: 'No Internet connection');
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.connectionTimeout) {
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
         BotToast.closeAllLoading();
         BotToast.showText(text: "Connection Timeout Exception");
         throw Exception("Connection Timeout Exception");
@@ -213,8 +176,6 @@ class Api {
       multiPart = false,
       nonFormContent = false,
       isProgressShow = false,
-      bool video = false,
-      int? rand,
       fullUrl,
       Map<String, dynamic>? queryPerameter}) async {
     if (isProgressShow == false) {
@@ -223,14 +184,10 @@ class Api {
 
     Dio dio = Dio();
     if (auth == false) {
-      print(sp.read('token'));
-      var headers = {'token': '${sp.read('token')}'};
-      // dio.options.headers['Authorization'] = "${sp.read('token')}";
-      dio.options.headers.addAll(headers);
+      dio.options.headers['Authorization'] = "Bearer ${sp.read('token')}";
     }
 
     try {
-      print("Data here Parameter: ${formData}");
       dynamic response = await dio.post(fullUrl ?? apiUrl + url,
           data: formData,
           options: multiPart == true
@@ -247,30 +204,23 @@ class Api {
                   contentType: nonFormContent == false
                       ? null
                       : "application/x-www-form-urlencoded"),
-          queryParameters: queryPerameter
-          // onSendProgress: video == true
-          //     ? (int sent, int total) {
-          //   onProgress(video, rand, total, sent, fullUrl, fromChat: true);
-          // }
-          //     : null,
+          queryParameters: queryPerameter,
           );
       if (isProgressShow == false) {
         BotToast.closeAllLoading();
       }
-      print("url ComBined Post : $apiUrl$url");
       return response;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (isProgressShow == false) {
         BotToast.closeAllLoading();
       }
 
-      if (e.type == DioErrorType.connectionError) {
+      if (e.type == DioExceptionType.connectionError) {
         BotToast.showText(text: 'No Internet connection');
       }
       return returnResponse(e.response);
-    } on SocketException catch (e) {
+    } on SocketException catch (_) {
       BotToast.closeAllLoading();
-      print("error $e");
     }
   }
 
@@ -280,9 +230,8 @@ class Api {
     if (response != null) {
       switch (response.statusCode) {
         case 200:
-          var responseJson = json.decode(response.data.toString());
-          print(responseJson);
-          return responseJson;
+          // Dio automatically decodes JSON responses — return data as-is.
+          return response.data;
         case 400:
           BotToast.showText(text: response.data["message"].toString());
           return response;

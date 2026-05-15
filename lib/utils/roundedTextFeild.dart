@@ -1,10 +1,11 @@
-// ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 // ignore: must_be_immutable
-class CustomTextField extends StatelessWidget {
+/// A feature-rich text field with built-in validation helpers.
+/// Use [widgets/custom_text_field.dart] for routine inputs.
+class RoundedTextField extends StatelessWidget {
   TextEditingController? controller = TextEditingController();
   TextEditingController? confirmPasswordController;
   bool? isEmail = false;
@@ -46,7 +47,7 @@ class CustomTextField extends StatelessWidget {
   final TextStyle? labelStyle;
   final Color? borderColor;
   final FocusNode? focusNode;
-  CustomTextField(
+  RoundedTextField(
       {Key? key,
       this.borderColor,
       this.hintStyle,
@@ -316,10 +317,10 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
-class EditProfileTextFields extends StatelessWidget {
+class EditProfileTextField extends StatelessWidget {
   TextEditingController controller = TextEditingController();
   dynamic getController;
-  EditProfileTextFields({
+  EditProfileTextField({
     Key? key,
     this.hintText,
     this.obscureText = false,

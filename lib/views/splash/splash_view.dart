@@ -31,7 +31,7 @@ class SplashView extends GetView<SplashController> {
                   ),
                   const SizedBox(height: AppConstants.spacingL),
                   Text(
-                    'Virtual Buddy',
+                    'Your App',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onPrimary,
                           fontWeight: FontWeight.w600,

@@ -1,5 +1,3 @@
-// ignore_for_file: invalid_required_positional_param, unrelated_type_equality_checks, use_rethrow_when_possible, empty_constructor_bodies
-
 import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
@@ -18,69 +16,68 @@ class RetryOnConnectionChangeInterceptor extends Interceptor {
       {required this.requestRetry, this.firstTime = false});
 
   @override
-  Future onError(DioError err, handler) async {
-    // TODO: implement onError
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     if (_shouldRetry(err, firstTime: firstTime)) {
       try {
         if (err.response == null) {
-          return requestRetry.scheduleRequestRetry(err, handler);
+          requestRetry.scheduleRequestRetry(err, handler);
+          return;
         }
-      } catch (e) {
-        return super.onError(err, handler);
+      } catch (_) {
+        handler.next(err);
+        return;
       }
     }
-    return err;
+    handler.next(err);
   }
 
-  bool _shouldRetry(DioError err, {firstTime}) {
-    if (err.type == DioErrorType.connectionError ||
-        err.type == DioErrorType.unknown) {
-      if (error == false) {
+  bool _shouldRetry(DioException err, {firstTime}) {
+    if (err.type == DioExceptionType.connectionError ||
+        err.type == DioExceptionType.unknown) {
+      if (!error) {
         error = true;
-        if (firstTime == true) {
-          showLoading();
-        }
+        if (firstTime == true) showLoading();
         BotToast.showText(text: 'Internet Error !! Retrying');
-        // Future.delayed(Duration(seconds: 8), () {
-        //   error = false;
-        // });
       }
       return true;
-    } else {
-      if (err.type == DioErrorType.connectionTimeout) {
-        BotToast.closeAllLoading();
-        return Api.singleton.returnResponse(err.response);
-      }
-      if (err.type == DioErrorType.receiveTimeout) {
-        BotToast.closeAllLoading();
-        return Api.singleton.returnResponse(err.response);
-      }
-      print("error response is ${err.response!.requestOptions.path}");
-      BotToast.closeAllLoading();
-      return Api.singleton.returnResponse(err.response);
     }
+
+    // Non-retryable — show feedback and let the caller handle the response.
+    if (err.type == DioExceptionType.connectionTimeout) {
+      BotToast.closeAllLoading();
+      BotToast.showText(text: 'Connection timed out');
+    } else if (err.type == DioExceptionType.receiveTimeout) {
+      BotToast.closeAllLoading();
+      BotToast.showText(text: 'Server took too long to respond');
+    } else {
+      BotToast.closeAllLoading();
+      Api.singleton.returnResponse(err.response);
+    }
+    return false;
   }
 }
 
 class DioConnectivityRequestRetry {
-  final Dio? dio;
-  final Connectivity? connectivity;
+  final Dio dio;
+  final Connectivity connectivity;
 
   DioConnectivityRequestRetry({
     required this.dio,
     required this.connectivity,
   });
 
-  void scheduleRequestRetry(DioError error, ErrorInterceptorHandler handler) {
-    late StreamSubscription streamSubscription;
-    streamSubscription = connectivity!.onConnectivityChanged.listen(
-      (connectivityResult) async {
-        if (connectivityResult != ConnectivityResult.none) {
+  void scheduleRequestRetry(DioException error, ErrorInterceptorHandler handler) {
+    late StreamSubscription<List<ConnectivityResult>> streamSubscription;
+    streamSubscription = connectivity.onConnectivityChanged.listen(
+      (results) async {
+        final hasConnection = results.any((r) =>
+            r == ConnectivityResult.wifi || r == ConnectivityResult.mobile);
+        if (hasConnection) {
           streamSubscription.cancel();
           try {
-            var response = await dio!.fetch(error.requestOptions);
+            final response = await dio.fetch(error.requestOptions);
             handler.resolve(response);
-          } on DioError catch (retryError) {
+          } on DioException catch (retryError) {
             handler.next(retryError);
           }
         }

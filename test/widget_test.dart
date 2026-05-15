@@ -1,30 +1,71 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 
 import 'package:project_structure/main.dart';
+import 'package:project_structure/models/user_model.dart';
+
+import 'helpers/app_test_helper.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  setUpAll(initTestDependencies);
+  tearDown(Get.reset);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  // ── Smoke test ─────────────────────────────────────────────────────────────
+  group('MyApp', () {
+    testWidgets('renders without throwing', (tester) async {
+      await tester.pumpWidget(const MyApp());
+      // A single pump renders the first frame (Splash screen).
+      // We deliberately avoid pumpAndSettle to skip the 1.5 s nav delay.
+      await tester.pump(Duration.zero);
+      expect(find.byType(GetMaterialApp), findsOneWidget);
+    });
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  // ── Model unit tests (no Flutter context needed) ───────────────────────────
+  group('UserModel', () {
+    const json = {
+      'id': '42',
+      'name': 'Jane Doe',
+      'email': 'jane@example.com',
+      'avatar_url': 'https://example.com/avatar.png',
+    };
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('fromJson deserialises all fields', () {
+      final user = UserModel.fromJson(json);
+      expect(user.id, '42');
+      expect(user.name, 'Jane Doe');
+      expect(user.email, 'jane@example.com');
+      expect(user.avatarUrl, 'https://example.com/avatar.png');
+    });
+
+    test('fromJson handles null avatarUrl', () {
+      final user = UserModel.fromJson({...json, 'avatar_url': null});
+      expect(user.avatarUrl, isNull);
+    });
+
+    test('toJson round-trips correctly', () {
+      final user = UserModel.fromJson(json);
+      expect(user.toJson(), equals(json));
+    });
+
+    test('copyWith creates a new instance with updated fields', () {
+      final user = UserModel.fromJson(json);
+      final updated = user.copyWith(name: 'John Doe');
+      expect(updated.name, 'John Doe');
+      expect(updated.email, user.email); // unchanged
+    });
+
+    test('equality holds when all fields match', () {
+      final a = UserModel.fromJson(json);
+      final b = UserModel.fromJson(json);
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+    });
+
+    test('inequality when a field differs', () {
+      final a = UserModel.fromJson(json);
+      final b = a.copyWith(name: 'Different');
+      expect(a, isNot(equals(b)));
+    });
   });
 }
